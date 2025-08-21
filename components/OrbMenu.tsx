@@ -1,13 +1,14 @@
+
 import React, { useState } from 'react';
 import { ICONS } from '../constants';
 
 interface OrbMenuProps {
   isConsoleVisible: boolean;
   onToggleConsole: () => void;
-  // Could add more actions here later
+  onToggleImageView: () => void;
 }
 
-export const OrbMenu: React.FC<OrbMenuProps> = ({ isConsoleVisible, onToggleConsole }) => {
+export const OrbMenu: React.FC<OrbMenuProps> = ({ isConsoleVisible, onToggleConsole, onToggleImageView }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuItems = [
@@ -16,7 +17,11 @@ export const OrbMenu: React.FC<OrbMenuProps> = ({ isConsoleVisible, onToggleCons
       icon: ICONS.TERMINAL,
       action: onToggleConsole,
     },
-    // Add more items here if needed
+    {
+      label: 'Image Studio',
+      icon: ICONS.IMAGE,
+      action: onToggleImageView,
+    },
   ];
 
   return (

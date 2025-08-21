@@ -169,3 +169,45 @@ export const generateSuggestion = async (metaPrompt: string, options?: Suggestio
   }
   return `Error: Failed to get suggestion after multiple retries due to rate limiting.`;
 };
+
+export const generateImages = async (
+  prompt: string,
+  numberOfImages: number,
+  aspectRatio: '1:1' | '16:9' | '9:16' | '4:3' | '3:4'
+): Promise<string[]> => {
+  let attempts = 0;
+  const maxAttempts = 4;
+  let delay = 1000;
+
+  while (attempts < maxAttempts) {
+    try {
+      const response = await ai.models.generateImages({
+        model: 'imagen-3.0-generate-002',
+        prompt: prompt,
+        config: {
+          numberOfImages: numberOfImages,
+          outputMimeType: 'image/jpeg',
+          aspectRatio: aspectRatio,
+        },
+      });
+      
+      return response.generatedImages.map(img => img.image.imageBytes);
+
+    } catch (error: any) {
+      attempts++;
+      const errorMessage = error?.message || "";
+      const isRateLimitError = errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED');
+
+      if (isRateLimitError && attempts < maxAttempts) {
+        console.warn(`Rate limit on image generation. Retrying in ${delay / 1000}s...`);
+        await sleep(delay);
+        delay *= 2;
+      } else {
+        console.error("Gemini Image Generation Error:", error);
+        const finalErrorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        throw new Error(`Error generating images: ${finalErrorMessage}`);
+      }
+    }
+  }
+  throw new Error('Failed to get response from API after multiple retries due to rate limiting.');
+};

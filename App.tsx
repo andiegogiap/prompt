@@ -12,8 +12,9 @@ import { WorkflowRunner } from './components/WorkflowRunner';
 import { Type } from '@google/genai';
 import { OrbMenu } from './components/OrbMenu';
 import { SettingsPanel } from './components/SettingsPanel';
+import { ImageGenerator } from './components/ImageGenerator';
 
-type ViewMode = 'composer' | 'workflow';
+type ViewMode = 'composer' | 'workflow' | 'image';
 
 const App: React.FC = () => {
   // Core State from Template
@@ -466,11 +467,17 @@ const App: React.FC = () => {
     }
   }, [iterations, addLog]);
 
+  const handleToggleImageView = () => {
+    setViewMode(prev => prev === 'image' ? 'composer' : 'image');
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-950/50">
       <Header onToggleSettings={() => setIsSettingsPanelVisible(true)} />
       <main ref={mainRef} className="flex-grow flex overflow-hidden">
-        {viewMode === 'workflow' ? (
+        {viewMode === 'image' ? (
+          <ImageGenerator onClose={() => setViewMode('composer')} />
+        ) : viewMode === 'workflow' ? (
            <WorkflowRunner
               initialPrompt={prompt}
               initialSettings={settings}
@@ -542,6 +549,7 @@ const App: React.FC = () => {
       <OrbMenu
         isConsoleVisible={isConsoleVisible}
         onToggleConsole={() => setIsConsoleVisible(prev => !prev)}
+        onToggleImageView={handleToggleImageView}
       />
 
       <SettingsPanel
